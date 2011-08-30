@@ -14,14 +14,14 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     // For logging and debugging purposes
     private static final String TAG = "StrokeMeActivity";
     
-    private static final double resetPeriod = 2.0;
+    private static final double resetPeriod = 5.0;
 	
 	private TextView rateView;
 	private JKalman kalman;
 	
-    Matrix s; // state [x, dx]        
-    Matrix c; // corrected state [x, dx]                 
-    Matrix m; // measurement [z]
+    Matrix state; // state [x, dx]        
+    Matrix correction; // corrected state [x, dx]                 
+    Matrix measurement; // measurement [z]
 	
 	int numStrokes; // Number of strokes recorded in current sequence
 	
@@ -45,14 +45,14 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
         // Instantiate Kalman filter implementation
         try {
 			kalman = new JKalman(2, 1);
-			
+            kalman.setProcess_noise_cov(kalman.getProcess_noise_cov().identity());
+            kalman.setMeasurement_noise_cov(kalman.getMeasurement_noise_cov().identity());	
 		} catch (Exception e) {
             Log.e(TAG, e.getMessage());
 		}
         
-        s = new Matrix(2, 1); // state [x, dx]        
-        c = new Matrix(2, 1); // corrected state [x, dx]                
-        m = new Matrix(1, 1); // measurement [z]
+        state = new Matrix(2, 1); // state [x, dx]        
+        measurement = new Matrix(1, 1); // measurement [z]
     }
     
     
@@ -71,28 +71,31 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     	
     	switch (numStrokes) {
     	case 1:
-    		s.set(0, 0, 0.0);
-    		s.set(1, 0, Double.NaN);
-    		Log.i(TAG, "dx:" + s.get(1, 0));
+    		state.set(0, 0, 0.0);
+    		state.set(1, 0, Double.NaN);
+    		Log.i(TAG, "dx:" + state.get(1, 0));
     		break;    		
     	case 2:
-    		s.set(0, 0, 1.0);
-    		s.set(1, 0, 1.0/dt);
-    		Log.i(TAG, "dx:" + s.get(1, 0));
+    		state.set(0, 0, 1.0);
+    		state.set(1, 0, 1.0/dt);
+    		// Seed filter with initial state estimate. Assumes first two measurements are unbiased
+    		kalman.setState_post(state);
+    		Log.i(TAG, "dx:" + state.get(1, 0));
     		break;
-    	case 3:
-			// Set up Kalman filter
-            kalman.setTransition_matrix(new Matrix(new double[][] { {1, dt}, {0, 1} }));
-  
-            kalman.setState_post(s);	
-            
-            Log.i(TAG, "dx:" + s.get(1, 0));
-    		break;    		
     	default:
-    		//
+			// Set up filter
+            kalman.setTransition_matrix(new Matrix(new double[][] { {1, dt}, {0, 1} }));
+            
+            kalman.Predict();
+            
+            measurement.set(0, 0, (double)numStrokes-1.0);
+            
+            state = kalman.Correct(measurement);
+            
+            Log.i(TAG, "dx:" + state.get(1, 0));
     	}
     	
-    	strokeRate = 60.0*s.get(1, 0);
+    	strokeRate = 60.0*state.get(1, 0);
     	    	
     	if (Double.isNaN(strokeRate)) {
     		rateView.setText("..."); 
