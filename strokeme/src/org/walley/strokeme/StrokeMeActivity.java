@@ -1,5 +1,12 @@
 package org.walley.strokeme;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.lang.Math;
+
 import jama.Matrix;
 import jkalman.JKalman;
 
@@ -8,15 +15,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 public class StrokeMeActivity extends Activity implements OnClickListener {
     // For logging and debugging purposes
     private static final String TAG = "StrokeMeActivity";
     
-    private static final double resetPeriod = 5.0;
+    private static final double resetPeriod = 3.0;
+    private static final int maxHistory = 3;
 	
 	private TextView rateView;
+	private ListView historyView;
+	
 	private JKalman kalman;
 	
     Matrix state; // state [x, dx]        
@@ -27,7 +39,11 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
 	
 	double strokeRate; // The current estimate of the stroke rate
 	
+	private List<String> history; // Array holding history of most recent stroke rates
+	private ArrayAdapter<String> historyAdapter;
+	
 	long lastTime; // time of last stroke
+
 	
     /** Called when the activity is first created. */
     @Override
@@ -37,6 +53,11 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
         
         rateView = (TextView)findViewById(R.id.rate);
         rateView.setOnClickListener(this);
+        
+        historyView = (ListView)findViewById(R.id.history);
+        history = new ArrayList<String>();
+        historyAdapter = new ArrayAdapter<String>(this, R.layout.history_item, history);
+        historyView.setAdapter(historyAdapter);
         
         numStrokes = 0; // Just started. No taps recorded yet
         
@@ -57,7 +78,7 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     
     
     // Tap received
-    public void onClick(View v) {
+    public void onClick(View v) {   	
     	numStrokes++;
     	
     	// Calculate time since last stroke (in seconds)
@@ -65,8 +86,20 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     	double dt = (double)(currentTime-lastTime)/1000.0;
     	
     	// If sufficient time has passed we treat this stroke as the first in a new sequence
-    	if (dt>resetPeriod) {
+    	if (dt>resetPeriod & numStrokes>2) {
     		numStrokes = 1;
+    		
+    		DateFormat formatter = new SimpleDateFormat("h:mm a");
+    		Calendar calendar = Calendar.getInstance();
+
+    		formatter.format(calendar.getTime());    		
+    		
+    		// Really should be a bounded Queue but this works
+    		historyAdapter.insert(String.format("%2.0f - %s", strokeRate, formatter.format(calendar.getTime())), 0); // Insert at beginning of list
+    		if (historyAdapter.getCount()>maxHistory) {
+    			historyAdapter.remove(historyAdapter.getItem(maxHistory-1)); // Remove oldest history item if over limit
+    		}
+    		
     	}
     	
     	switch (numStrokes) {

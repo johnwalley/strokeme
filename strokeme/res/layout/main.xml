@@ -5,9 +5,11 @@
     android:layout_height="fill_parent"
     android:background="@drawable/background">
     >
-<TextView  
-	android:id="@+id/rate"
+<TextView android:id="@+id/rate"
 	style="@style/rate"
     android:text="@string/rate"
     />
+<ListView android:id="@+id/history"
+	android:layout_height="wrap_content"
+	android:layout_width="match_parent"/>
 </LinearLayout>
