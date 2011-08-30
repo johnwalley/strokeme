@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme is the default theme. -->
+    <style name="Theme" parent="android:Theme"></style>
+
+    <!-- Variation on the Light theme that turns off the title -->
+    <style name="Theme.StrokeMe" parent="android:style/Theme.NoTitleBar.Fullscreen">
+    </style>
+    
+    <style name="rate" parent="@android:style/TextAppearance.Medium">
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:gravity">center</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:textSize">96sp</item>
+        <item name="android:typeface">monospace</item>
+    </style>    
+</resources>
