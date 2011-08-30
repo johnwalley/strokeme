@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.lang.Math;
 
 import jama.Matrix;
 import jkalman.JKalman;
@@ -13,6 +12,9 @@ import jkalman.JKalman;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
@@ -31,18 +33,19 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
 	
 	private JKalman kalman;
 	
-    Matrix state; // state [x, dx]        
-    Matrix correction; // corrected state [x, dx]                 
-    Matrix measurement; // measurement [z]
+	private Matrix state; // state [x, dx]        
+    private Matrix measurement; // measurement [z]
 	
-	int numStrokes; // Number of strokes recorded in current sequence
+    private int numStrokes; // Number of strokes recorded in current sequence
 	
 	double strokeRate; // The current estimate of the stroke rate
 	
 	private List<String> history; // Array holding history of most recent stroke rates
 	private ArrayAdapter<String> historyAdapter;
 	
-	long lastTime; // time of last stroke
+	private long lastTime; // time of last stroke
+	
+	private boolean displayHistory;
 
 	
     /** Called when the activity is first created. */
@@ -59,7 +62,9 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
         historyAdapter = new ArrayAdapter<String>(this, R.layout.history_item, history);
         historyView.setAdapter(historyAdapter);
         
-        numStrokes = 0; // Just started. No taps recorded yet
+        displayHistory = true;
+        
+        numStrokes = 0; // Just started. No strokes recorded yet
         
         lastTime = System.currentTimeMillis(); // Need a valid value but this is never used to estimate stroke rate
 
@@ -139,4 +144,28 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     	lastTime = currentTime;
     	
     }
+    
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+    
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+        case R.id.toggleHistory:
+        	displayHistory = !displayHistory;
+        	if (displayHistory) {
+            	historyView.setVisibility(View.VISIBLE);
+        	} else {
+            	historyView.setVisibility(View.GONE);
+        	}
+            return true;
+        default:
+            return super.onOptionsItemSelected(item);
+        }
+    }    
 }
