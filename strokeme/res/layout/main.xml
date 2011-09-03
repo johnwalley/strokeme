@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:id="@+id/screen"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@drawable/background">
+    android:background="@drawable/background" android:weightSum="1">
     >
 <TextView android:id="@+id/rate"
 	style="@style/rate"
-    android:text="@string/rate"
-    />
+    android:text="@string/rate"/>
+
 <ListView android:id="@+id/history"
-	android:layout_height="wrap_content"
-	android:layout_width="match_parent"/>
+	style="@style/history_list"/>
 </LinearLayout>

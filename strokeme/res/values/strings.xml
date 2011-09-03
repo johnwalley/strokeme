@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="rate">Tap!</string>
+    <string name="units">spm</string>
     <string name="app_name">StrokeMe</string>
+    <string name="rate_history">Stroke Rate</string><string name="time_history">Time</string>
 </resources>
