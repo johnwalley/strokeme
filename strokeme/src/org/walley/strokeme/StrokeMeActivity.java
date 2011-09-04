@@ -157,7 +157,6 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     		if (numStrokes>2) {
 	    		// Move this value to history    		
 	    		DateFormat formatter = new SimpleDateFormat("h:mm a");
-	    		Calendar calendar = Calendar.getInstance();
 	
 	    		// Really should be a bounded Queue but this works
 	    		historyAdapter.insert(new HistoryItem(String.format("%2.0f spm", strokeRate), String.format("%s", formatter.format(lastDate))), 0); // Insert at beginning of list
@@ -203,8 +202,8 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     		rateView.setText(String.format("%2.0f", strokeRate)); 
     	}
     	
-    	lastTime = currentTime;
-    	lastDate = calendar.getTime();
+    	lastTime = currentTime; 	
+    	lastDate = Calendar.getInstance().getTime();
     	
     }
     

@@ -11,6 +11,5 @@
     android:text="@string/rate"
     />
 <ListView android:id="@+id/history"
-	android:layout_height="wrap_content"
-	android:layout_width="match_parent"/>    
+	style="@style/history_list"/>    
 </LinearLayout>
