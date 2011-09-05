@@ -30,7 +30,7 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     // For logging and debugging purposes
     private static final String TAG = "StrokeMeActivity";
     
-    private static final double resetPeriod = 3.0;
+    private static final double resetPeriod = 10.0;
     private static final int maxHistory = 3;
 	
     private LinearLayout layoutView;
