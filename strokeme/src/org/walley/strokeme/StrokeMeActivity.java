@@ -30,7 +30,7 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     // For logging and debugging purposes
     private static final String TAG = "StrokeMeActivity";
     
-    private static final double resetPeriod = 10.0;
+    private static final double maxResetPeriod = 10.0;
     private static final int maxHistory = 3;
 	
     private LinearLayout layoutView;
@@ -44,7 +44,7 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
 	
     private int numStrokes; // Number of strokes recorded in current sequence
 	
-	double strokeRate; // The current estimate of the stroke rate
+	double strokeRate = Double.NaN; // The current estimate of the stroke rate
 	
 	private List<HistoryItem> history; // Array holding history of most recent stroke rates
 	private ArrayAdapter<HistoryItem> historyAdapter;
@@ -146,12 +146,22 @@ public class StrokeMeActivity extends Activity implements OnClickListener {
     public void onClick(View v) {   	
     	numStrokes++;
     	
+    	double resetPeriod;
+    	
     	// Calculate time since last stroke (in seconds)
     	long currentTime = System.currentTimeMillis();
     	double dt = (double)(currentTime-lastTime)/1000.0;
     	
+    	
+    	if (Double.isNaN(strokeRate)) {
+    		resetPeriod = maxResetPeriod; 
+    	} else {
+    		resetPeriod = Math.min(maxResetPeriod, 3.0/(strokeRate/60.0)); 
+    	}
+    	
     	// If sufficient time has passed we treat this stroke as the first in a new sequence
-    	if (dt>resetPeriod) {
+    	if (dt>resetPeriod) {	
+    		Log.i(TAG, "dt:" + dt + " resetPeriod:" + resetPeriod + " 1/(strokeRate/60):" + 1.0/(strokeRate/60.0));
     		    		
     		// No point in storing in history if numStrokes equals 2
     		if (numStrokes>2) {
